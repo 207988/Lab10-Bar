@@ -3,6 +3,8 @@ package it.polito.tdp.bar;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import com.sun.javafx.sg.prism.NGShape.Mode;
+
 import it.polito.tdp.bar.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -30,7 +32,9 @@ public class BarController {
 
     @FXML
     void doSimulazione(ActionEvent event) {
+    	txtOutput.clear();
     	model.load();
+    	txtOutput.setText(model.simula());
     }
 
     @FXML

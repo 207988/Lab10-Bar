@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 
 import it.polito.tdp.bar.model.Gruppo;
 import it.polito.tdp.bar.model.Statistiche;
@@ -37,6 +38,24 @@ public class Core {
 	}
 	public void passo(){
 		//TODO
+		Evento e=listaEventi.remove();		
+		switch(e.getTipo()){
+		case ARRIVO_GRUPPO_CLIENTI:
+			this.aggiungiGruppo(e);
+			int servizio=this.serviGruppo(e.getG());
+			if(servizio==1||servizio==0)
+				stat.aggiungiClientiSoddisfatti(e.getG().getNumPersone());
+			else
+				stat.aggiungiClientiInsoddisfatti(e.getG().getNumPersone());
+			break;
+		case USCITA_GRUPPO_CLIENTI:
+			this.liberaTavolo(e.getG());
+			break;
+		default:
+			break;
+		
+		}
+		System.out.println(e.toString());
 		
 	}
 	
@@ -44,5 +63,49 @@ public class Core {
 		while(!listaEventi.isEmpty())
 			this.passo();
 		return stat.toString();
+	}
+	
+	
+	/**
+	 * @param g Gruppo che cerca tavolo
+	 * @return 
+	 * 1 se trova tavolo
+	 * 0 se soddisfatti bancone
+	 *  -1 se insoddisfatti
+	 */
+	public int serviGruppo(Gruppo g){
+		int d=g.getNumPersone();
+		Random random=new Random();
+		for(Tavolo t:listaTavoli){
+			//provo a trovare un tavolo al gruppo
+			if(t.getG()==null){
+				if(d>=(t.getDimensione()/2)){
+					t.setG(g);
+					return 1;
+				}
+			}	
+			
+		}
+		//provo a far accomodare al bancone il gruppo
+		if(((float)random.nextInt(9)/10)<g.getTolleranza())
+			return 0;
+		else
+			return -1;
+	}
+	
+	public void liberaTavolo(Gruppo g){
+		for(Tavolo t:listaTavoli){
+			if(t.getG()!=null){
+				if(t.getG()==g)
+					t.setG(null);
+			}
+		}
+	}
+	
+	public void clear(){
+		gruppi.clear();
+		listaEventi.clear();
+		listaTavoli.clear();
+		stat=new Statistiche();
 	}
 }
